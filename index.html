@@ -155,8 +155,9 @@
     </div>
   </div>
   <button class="skip-btn" id="skipBtn">⏩ Time skip</button>
+  <div id="skipStatus" style="position:absolute;bottom:4px;left:50%;transform:translateX(-50%);font-size:0.6rem;opacity:0.5;max-width:90vw;text-align:center;"></div>
   <audio id="skipAudio" src="surprise.mp3" preload="none"></audio>
-  <footer>Spakkraft 🎅</footer>
+  <footer>Spakkraft 🎅 · build v3</footer>
 <script>
 function nextChristmas(){
   const now = new Date();
@@ -220,7 +221,20 @@ for (let i=0;i<40;i++){
 
 const skipBtn = document.getElementById('skipBtn');
 const skipAudio = document.getElementById('skipAudio');
+const skipStatus = document.getElementById('skipStatus');
+
+function showStatus(msg){
+  skipStatus.textContent = msg;
+}
+
+skipAudio.addEventListener('error', () => {
+  const codes = ['', 'MEDIA_ERR_ABORTED', 'MEDIA_ERR_NETWORK', 'MEDIA_ERR_DECODE', 'MEDIA_ERR_SRC_NOT_SUPPORTED'];
+  const code = skipAudio.error ? skipAudio.error.code : -1;
+  showStatus('Lydfeil: ' + (codes[code] || code));
+});
+
 skipBtn.addEventListener('click', () => {
+  showStatus('Spiller...');
   try {
     if (!skipAudio.paused) {
       skipAudio.pause();
@@ -230,8 +244,10 @@ skipBtn.addEventListener('click', () => {
     // preload="none" means currentTime can't be set before metadata loads; ignore and just play.
   }
   const playPromise = skipAudio.play();
-  if (playPromise && playPromise.catch) {
-    playPromise.catch((err) => console.warn('Kunne ikke spille lyd:', err));
+  if (playPromise && playPromise.then) {
+    playPromise
+      .then(() => showStatus(''))
+      .catch((err) => showStatus('Kunne ikke spille: ' + (err && err.name ? err.name : err)));
   }
 });
 
