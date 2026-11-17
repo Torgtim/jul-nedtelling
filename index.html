@@ -221,8 +221,18 @@ for (let i=0;i<40;i++){
 const skipBtn = document.getElementById('skipBtn');
 const skipAudio = document.getElementById('skipAudio');
 skipBtn.addEventListener('click', () => {
-  skipAudio.currentTime = 0;
-  skipAudio.play().catch(()=>{});
+  try {
+    if (!skipAudio.paused) {
+      skipAudio.pause();
+    }
+    skipAudio.currentTime = 0;
+  } catch (err) {
+    // preload="none" means currentTime can't be set before metadata loads; ignore and just play.
+  }
+  const playPromise = skipAudio.play();
+  if (playPromise && playPromise.catch) {
+    playPromise.catch((err) => console.warn('Kunne ikke spille lyd:', err));
+  }
 });
 
 if ('serviceWorker' in navigator){
