@@ -119,6 +119,7 @@
   }
   .skip-btn{
     position:absolute;
+    z-index:10;
     bottom:46px;
     left:50%;
     transform:translateX(-50%);
@@ -157,8 +158,13 @@
   <button class="skip-btn" id="skipBtn">⏩ Time skip</button>
   <div id="skipStatus" style="position:absolute;bottom:4px;left:50%;transform:translateX(-50%);font-size:0.6rem;opacity:0.5;max-width:90vw;text-align:center;"></div>
   <audio id="skipAudio" src="surprise.mp3" preload="none"></audio>
-  <footer>Spakkraft 🎅 · build v3</footer>
+  <footer>Spakkraft 🎅 · build v4</footer>
 <script>
+window.addEventListener('error', (e) => {
+  const box = document.getElementById('skipStatus');
+  if (box) box.textContent = 'JS-feil: ' + e.message + ' (linje ' + e.lineno + ')';
+});
+
 function nextChristmas(){
   const now = new Date();
   let year = now.getFullYear();
@@ -232,6 +238,9 @@ skipAudio.addEventListener('error', () => {
   const code = skipAudio.error ? skipAudio.error.code : -1;
   showStatus('Lydfeil: ' + (codes[code] || code));
 });
+
+skipBtn.addEventListener('touchstart', () => showStatus('touchstart...'), {passive:true});
+skipBtn.addEventListener('pointerdown', () => showStatus('pointerdown...'));
 
 skipBtn.addEventListener('click', () => {
   showStatus('Spiller...');
